@@ -1,2 +1,1 @@
-# Default. Unless we have a more specific match.
-*       @telia-oss/terraform-owners
+* @kvaidas @telia-oss/terraform-owners

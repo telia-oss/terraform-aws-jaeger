@@ -1,10 +1,12 @@
-# Terraform
-**/.terraform
-**/*.tfstate*
-crash.log
+#  Local .terraform directories
+**/.terraform/*
 
-# InteliJ IDE
-.idea/
+# .tfstate files
+*.tfstate
+*.tfstate.*
 
-# Taskfile
-.task/
+# .tfvars files
+*.tfvars
+
+# lambda zipfiles
+*.zip

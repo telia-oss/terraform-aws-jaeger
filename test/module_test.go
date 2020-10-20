@@ -1,67 +1,85 @@
-package module_test
+package module
 
 import (
-	"fmt"
+	"io/ioutil"
+	"log"
+	"math/rand"
 	"testing"
+	"time"
 
-	module "github.com/telia-oss/terraform-module-template/test"
-
-	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
-func TestModule(t *testing.T) {
-	tests := []struct {
-		description string
-		directory   string
-		name        string
-		region      string
-		expected    module.Expectations
-	}{
-		{
-			description: "basic example",
-			directory:   "../examples/basic",
-			name:        fmt.Sprintf("module-basic-test-%s", random.UniqueId()),
-			region:      "eu-west-1",
-			expected:    module.Expectations{},
-		},
-		{
-			description: "complete example",
-			directory:   "../examples/complete",
-			name:        fmt.Sprintf("module-complete-test-%s", random.UniqueId()),
-			region:      "eu-west-1",
-			expected:    module.Expectations{},
-		},
+func waitForEcsService(t *testing.T, region, cluster, service string) {
+	for attempts := 1; attempts < 30; attempts++ {
+		state := *aws.GetEcsService(t, region, cluster, service)
+
+		if *state.PendingCount == 0 && *state.DesiredCount == *state.RunningCount {
+			t.Logf(
+				"Service \"%s\" started",
+				service,
+			)
+			return
+		}
+
+		t.Logf(
+			"Waiting for service \"%s\" to stabilise (attempt %d)",
+			service,
+			attempts,
+		)
+		time.Sleep(time.Second * 10)
 	}
 
-	for _, tc := range tests {
-		tc := tc // Source: https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721
-		t.Run(tc.description, func(t *testing.T) {
+	t.Fatalf(
+		"Service \"%s\" did not come up",
+		service,
+	)
+}
+
+// Elasticsearch domain names have stricter limitations which eliminate github.com/gruntwork-io/terratest/modules/random
+// reference: https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-createupdatedomains.html
+func randomPrefix(stringLength int) string {
+	const letters = "abcdefghijklmnopqrstuvwxyz"
+	randomString := make([]byte, stringLength)
+	for i := range randomString {
+		randomString[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(randomString)
+}
+
+func TestModule(t *testing.T) {
+	// Get all the test configurations
+	const region = "eu-west-1"
+	var testConfigs []string
+	files, err := ioutil.ReadDir("../examples/")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			testConfigs = append(testConfigs, "../examples/"+file.Name())
+		}
+	}
+
+	// Run tests on each test configuration
+	for _, testSetup := range testConfigs {
+		t.Run(testSetup, func(t *testing.T) {
 			t.Parallel()
 
-			options := &terraform.Options{
-				TerraformDir: tc.directory,
-
+			resourcePrefix := randomPrefix(6)
+			terraformOptions := &terraform.Options{
+				TerraformDir: testSetup,
 				Vars: map[string]interface{}{
-					"name_prefix": tc.name,
-					"region":      tc.region,
-				},
-
-				EnvVars: map[string]string{
-					"AWS_DEFAULT_REGION": tc.region,
+					"name_prefix": resourcePrefix,
 				},
 			}
+			defer terraform.Destroy(t, terraformOptions)
+			terraform.InitAndApply(t, terraformOptions)
 
-			defer terraform.Destroy(t, options)
-			terraform.InitAndApply(t, options)
-
-			tc.expected.NamePrefix = tc.name
-
-			module.RunTestSuite(t,
-				tc.region,
-				terraform.Output(t, options, "name_prefix"),
-				tc.expected,
-			)
+			waitForEcsService(t, region, resourcePrefix+"-jaeger", resourcePrefix+"-jaeger-collector")
+			waitForEcsService(t, region, resourcePrefix+"-jaeger", resourcePrefix+"-jaeger-query")
 		})
 	}
+
 }
