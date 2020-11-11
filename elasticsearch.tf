@@ -50,6 +50,7 @@ resource "aws_elasticsearch_domain" "jaeger_storage" {
 
 data aws_elasticsearch_domain "jaeger_storage" {
   domain_name = var.storage_domain_name == null ? "${local.name_prefix}jaeger-storage" : var.storage_domain_name
+  depends_on  = [aws_elasticsearch_domain.jaeger_storage]
 }
 
 resource "aws_security_group" "jaeger_storage" {
