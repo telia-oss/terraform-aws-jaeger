@@ -41,7 +41,8 @@ resource "aws_elasticsearch_domain" "jaeger_storage" {
     enabled = var.storage_encrypt_at_rest
   }
   domain_endpoint_options {
-    enforce_https = false
+    enforce_https       = true
+    tls_security_policy = "Policy-Min-TLS-1-2-2019-07"
   }
   node_to_node_encryption {
     enabled = true
@@ -50,6 +51,7 @@ resource "aws_elasticsearch_domain" "jaeger_storage" {
 
 data aws_elasticsearch_domain "jaeger_storage" {
   domain_name = var.storage_domain_name == null ? "${local.name_prefix}jaeger-storage" : var.storage_domain_name
+  depends_on  = [aws_elasticsearch_domain.jaeger_storage]
 }
 
 resource "aws_security_group" "jaeger_storage" {
