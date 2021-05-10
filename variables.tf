@@ -1,7 +1,6 @@
 //
 // Input variables
 //
-
 // VPC related
 variable "vpc" {
   type        = string
@@ -32,7 +31,7 @@ variable "query_allow_cidrs" {
 }
 
 // Load balancer related
-variable lb_arn {
+variable "lb_arn" {
   type        = string
   description = "Use this NLB instead of creating a new one"
   default     = null
@@ -88,6 +87,11 @@ variable "storage_retention_days" {
 }
 
 // Other settings
+variable "region" {
+  type    = string
+  default = "eu-west-1"
+}
+
 variable "collector_count" {
   type        = number
   description = "Number of jaeger-collector instances"

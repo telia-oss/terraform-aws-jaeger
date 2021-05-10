@@ -1,3 +1,6 @@
+provider "aws" {
+  region = var.region
+}
 //
 // Common resources that do not fit in elsewhere
 //

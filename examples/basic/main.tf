@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.region
+}
+
 // VPC
 data "aws_vpc" "default_vpc" {
   default = true
