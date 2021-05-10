@@ -10,7 +10,7 @@ resource "aws_elasticsearch_domain" "jaeger_storage" {
     instance_type          = var.storage_instance_type
     instance_count         = var.storage_instance_count
     zone_awareness_enabled = var.storage_instance_count > 1 ? true : false
-    dynamic zone_awareness_config {
+    dynamic "zone_awareness_config" {
       for_each = length(var.subnets) > 1 ? [1] : []
       content {
         availability_zone_count = var.storage_instance_count < 3 ? var.storage_instance_count : 3
@@ -49,7 +49,7 @@ resource "aws_elasticsearch_domain" "jaeger_storage" {
   }
 }
 
-data aws_elasticsearch_domain "jaeger_storage" {
+data "aws_elasticsearch_domain" "jaeger_storage" {
   domain_name = var.storage_domain_name == null ? "${local.name_prefix}jaeger-storage" : var.storage_domain_name
   depends_on  = [aws_elasticsearch_domain.jaeger_storage]
 }
