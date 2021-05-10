@@ -1,6 +1,10 @@
-on:
+on: 
+  push:
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
 
 jobs:
   validate:
@@ -15,7 +19,7 @@ jobs:
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v1
-        with: { terraform_version: 0.13.0 }
+        with: { terraform_version: 0.14.10 }
 
       - name: Install Taskfile
         run: curl -sL https://taskfile.dev/install.sh | sh
