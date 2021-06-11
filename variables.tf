@@ -131,7 +131,7 @@ output "url" {
       var.lb_certificate == true ? "https" : "http",
       "://",
       data.aws_lb.jaeger.dns_name,
-      16686
+      ":16686"
     ]
   )
 }
