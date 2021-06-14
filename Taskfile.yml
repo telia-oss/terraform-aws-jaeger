@@ -59,4 +59,5 @@ tasks:
     desc: Run the end 2 end test suite.
     silent: true
     cmds:
+      - go clean -testcache
       - go test -v ./... -timeout=2h
