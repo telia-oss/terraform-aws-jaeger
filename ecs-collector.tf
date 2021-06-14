@@ -60,7 +60,7 @@ resource "aws_ecs_service" "jaeger_collector" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    assign_public_ip = false
+    assign_public_ip = alltrue(data.aws_subnet.selected[*].map_public_ip_on_launch) ? true : false
     subnets          = var.subnets
     security_groups  = [aws_security_group.jaeger_collector.id]
   }
