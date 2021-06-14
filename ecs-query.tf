@@ -8,7 +8,7 @@ resource "aws_ecs_task_definition" "jaeger_query" {
       [
           {
               "name": "${local.name_prefix}jaeger-query",
-              "image": "jaegertracing/jaeger-query:1.18.0",
+              "image": "quay.io/jaegertracing/jaeger-query:1.23.0",
               "portMappings": [
                   {
                       "containerPort": 16686,
