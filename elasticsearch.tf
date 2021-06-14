@@ -34,7 +34,7 @@ resource "aws_elasticsearch_domain" "jaeger_storage" {
       ]
     }
   POLICY
-  elasticsearch_version = "7.7"
+  elasticsearch_version = "7.10"
 
   // Encryption
   encrypt_at_rest {
