@@ -32,7 +32,7 @@ variable "query_allow_cidrs" {
 }
 
 // Load balancer related
-variable lb_arn {
+variable "lb_arn" {
   type        = string
   description = "Use this NLB instead of creating a new one"
   default     = null
