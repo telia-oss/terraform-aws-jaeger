@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 env:
   TERM: screen-256color
@@ -40,7 +40,7 @@ tasks:
           cd $d
           echo "${BOLD}$PWD:${NORM}"
 
-          if ! terraform init -backend=false -input=false -get=true -get-plugins=true -no-color > /dev/null; then
+          if ! terraform init -backend=false -input=false -get=true -no-color > /dev/null; then
             echo "  ✗ terraform init" && exit 1
           else
             echo "  √ terraform init"
@@ -59,4 +59,5 @@ tasks:
     desc: Run the end 2 end test suite.
     silent: true
     cmds:
+      - go clean -testcache
       - go test -v ./... -timeout=2h

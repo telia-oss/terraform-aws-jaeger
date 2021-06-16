@@ -8,7 +8,7 @@ resource "aws_ecs_task_definition" "jaeger_query" {
       [
           {
               "name": "${local.name_prefix}jaeger-query",
-              "image": "jaegertracing/jaeger-query:1.18.0",
+              "image": "quay.io/jaegertracing/jaeger-query:1.23.0",
               "portMappings": [
                   {
                       "containerPort": 16686,
@@ -70,7 +70,7 @@ resource "aws_ecs_service" "jaeger_query" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    assign_public_ip = false
+    assign_public_ip = alltrue(data.aws_subnet.selected[*].map_public_ip_on_launch) ? true : false
     subnets          = var.subnets
     security_groups  = [aws_security_group.jaeger_query.id]
   }
