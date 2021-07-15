@@ -46,7 +46,9 @@ def lambda_handler(event, context):
             timestamp = datetime.date.fromisoformat(timestamp)
             if timestamp < datetime.date.today() - retention:
                 indices_to_delete.append(index['index'])
-    logger.info('Selected the following indices to delete: {}'.format(indices_to_delete.sort()))
+
+    indices_to_delete.sort()
+    logger.info('Selected the following indices to delete: {}'.format(indices_to_delete))
 
     # Delete selected indices
     for index in indices_to_delete:
@@ -60,4 +62,4 @@ def lambda_handler(event, context):
         except Exception as e:
             logger.error('Failed to delete index "{}": {}'.format(index, e))
 
-        return {'statusCode': 200}
+    return {'statusCode': 200}
