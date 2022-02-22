@@ -106,14 +106,42 @@ variable "tags" {
   default     = {}
 }
 
+variable "collector_extra_envs" {
+  type        = map(string)
+  description = "A map of extra environment variables to pass to the collector"
+  default     = {}
+}
+
+variable "query_extra_envs" {
+  type        = map(string)
+  description = "A map of extra environment variables to pass to the query ui"
+  default     = {}
+}
+
 //
 // Internal use variables
 //
 
 locals {
-  lb_arn      = var.lb_arn == null ? aws_lb.jaeger[0].arn : var.lb_arn
-  name_prefix = var.name_prefix == null ? "" : "${var.name_prefix}-"
-  tls_policy  = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  lb_arn               = var.lb_arn == null ? aws_lb.jaeger[0].arn : var.lb_arn
+  name_prefix          = var.name_prefix == null ? "" : "${var.name_prefix}-"
+  tls_policy           = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  collector_extra_envs = <<EOT
+  %{for k in keys(var.collector_extra_envs)~}
+  {
+    "name": "${k}",
+    "value": "${var.collector_extra_envs[k]}"
+  },
+  %{endfor~}
+  EOT
+  query_extra_envs     = <<EOT
+  %{for k in keys(var.query_extra_envs)~}
+  {
+    "name": "${k}",
+    "value": "${var.query_extra_envs[k]}"
+  },
+  %{endfor~}
+  EOT
 }
 
 //
