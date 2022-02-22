@@ -22,6 +22,7 @@ resource "aws_ecs_task_definition" "jaeger_query" {
                   }
               ],
               "environment": [
+                  ${local.query_extra_envs}
                   {
                     "name": "SPAN_STORAGE_TYPE",
                     "value": "elasticsearch"
@@ -35,11 +36,12 @@ resource "aws_ecs_task_definition" "jaeger_query" {
                         "name": "JAEGER_ENDPOINT",
                         "value": "http://${data.aws_lb.jaeger.dns_name}:14268/api/traces"
                     EOS
-                    : <<EOS
+  :
+  <<EOS
                         "name": "JAEGER_DISABLED",
                         "value": "true"
-                    EOS
-                    }
+  EOS
+}
                   },
                   {
                       "name": "JAEGER_SERVICE_NAME",

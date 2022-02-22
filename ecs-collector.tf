@@ -27,6 +27,7 @@ resource "aws_ecs_task_definition" "jaeger_collector" {
                   }
               ],
               "environment": [
+                  ${local.collector_extra_envs}
                   {
                     "name": "SPAN_STORAGE_TYPE",
                     "value": "elasticsearch"
